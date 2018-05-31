@@ -33,7 +33,7 @@ def sort_a_list(lst):
 def test_sort_a_list(lst):
     # Note: even before the assertion, we're checking that sort_a_list
     #  doesn't raise an exception for any list of integers!
-    new = feature_sort_a_list(lst)
+    new = sort_a_list(lst)
     assert Counter(lst) == Counter(new)  # sorted list must have same elements
     # TODO: assert that the list is in correct order
 
