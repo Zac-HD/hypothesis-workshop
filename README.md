@@ -1,3 +1,7 @@
+# TURN BACK NOW - THIS BRANCH HAS SPOILERS
+
+Or check `workshop.py` for example solutions - that's why you're here, right?
+
 # An Interactive Introduction to Hypothesis
 
 *This tutorial was written for Pycon Asia-Pacific 2018, in Singapore.*

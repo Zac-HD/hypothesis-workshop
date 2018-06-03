@@ -24,7 +24,7 @@ from hypothesis import given, strategies as st
 def sort_a_list(lst):
     # TODO: sort the list however you wish (use a builtin OR write a sort func)
     # Consider writing the test first so you see it fail!
-    return lst
+    return sorted(lst)
 
 
 @given(lst=st.lists(st.integers()))
@@ -34,12 +34,13 @@ def test_sort_a_list(lst):
     new = sort_a_list(lst.copy())
     assert Counter(lst) == Counter(new)  # sorted list must have same elements
     # TODO: assert that the list is in correct order
+    assert all(i <= j for i, j in zip(lst, lst[1:]))
 
 
 ##############################################################################
 
 
-@given(st.just([1, 2, 3]))  # lists of integers with the following constraint:
+@given(st.lists(st.integers(min_value=1), min_size=2))
 def test_sum_of_list_greater_than_max(lst):
     # TODO: *without* changing the test body, write the most general
     #       argument to @given that will pass for lists of integers.
@@ -54,10 +55,10 @@ def test_sum_of_list_greater_than_max(lst):
 def leftpad(string, width, fillchar):
     # TODO: if len(string) < width, add fillchar to the left until it isn't.
     # Bonus points for finding a trivial or pythonic solution.
-    return string
+    return string.rjust(width, fillchar)
 
 
-@given(st.text(), st.just(0), st.characters())
+@given(st.text(), st.integers(0, 1000), st.characters())
 def test_leftpad(string, width, fillchar):
     # TODO: allow any length from zero up to e.g. 1000 (capped for performance)
     padded = leftpad(string, width, fillchar)
@@ -65,6 +66,10 @@ def test_leftpad(string, width, fillchar):
     assert padded.endswith(string)
     # TODO: assert that correct padding has been added
     # (the trick is to write code and tests which will have different bugs)
+    if width > len(string):
+        # We already checked that the length is correct and that the string is
+        # in the right place, so we can check padding content without length.
+        assert set(padded[:-len(string)]) == {fillchar}
 
 
 ##############################################################################
@@ -87,14 +92,14 @@ class Record(object):
 
     @classmethod
     def from_json(cls, string):
-        value = string
+        value = json.loads(string)
         return cls(value)
 
 
 # Passinga zero-arg function to `deferred` lets us write recursive definitions!
 json_strat = st.deferred(lambda: st.one_of(
     # JSON values are defined as nil, false, true, number, string, ...
-    st.none(), st.booleans(), st.floats(), st.text(),
+    st.none(), st.booleans(), st.floats(allow_nan=False), st.text(),
     # or arrays of json, or "objects" ie string: json dictionaries.
     st.lists(json_strat), st.dictionaries(st.text(), json_strat)
 ))
@@ -109,3 +114,12 @@ def test_record_json_roundtrip(record):
     # TODO: fix the first problem in the code being tested
     # TODO: fix the second problem by using hypothesis.assume in the test,
     #       or an argument to one of the strategies defining json
+
+    # Option A:  see allow_nan=False; excluding from input is good if possible
+    # Option B:  best way to deal with edge cases if A is not available
+    from hypothesis import assume
+    assume(record == record)  # if False, abort test and make another attempt
+    assert record == new
+    # Option C:  weaker, because we may only rarely check the assertion
+    if record == record:
+        assert record == new
