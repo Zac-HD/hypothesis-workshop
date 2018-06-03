@@ -15,8 +15,6 @@ Your goal is to fix each of the features, then make tests pass again.
 import json
 from collections import Counter
 
-import attr
-
 from hypothesis import given, strategies as st
 
 
@@ -33,7 +31,7 @@ def sort_a_list(lst):
 def test_sort_a_list(lst):
     # Note: even before the assertion, we're checking that sort_a_list
     #  doesn't raise an exception for any list of integers!
-    new = sort_a_list(lst)
+    new = sort_a_list(lst.copy())
     assert Counter(lst) == Counter(new)  # sorted list must have same elements
     # TODO: assert that the list is in correct order
 
@@ -41,7 +39,7 @@ def test_sort_a_list(lst):
 ##############################################################################
 
 
-@given(st.just([1, 2, 3]))
+@given(st.just([1, 2, 3]))  # lists of integers with the following constraint:
 def test_sum_of_list_greater_than_max(lst):
     # TODO: *without* changing the test body, write the most general
     #       argument to @given that will pass for lists of integers.
@@ -63,7 +61,7 @@ def leftpad(string, width, fillchar):
 def test_leftpad(string, width, fillchar):
     # TODO: allow any length from zero up to e.g. 1000 (capped for performance)
     padded = leftpad(string, width, fillchar)
-    assert len(padded) >= width
+    assert len(padded) == max(width, len(string))
     assert padded.endswith(string)
     # TODO: assert that correct padding has been added
     # (the trick is to write code and tests which will have different bugs)
@@ -72,10 +70,17 @@ def test_leftpad(string, width, fillchar):
 ##############################################################################
 
 
-@attr.s()  # If this is unfamiliar, see http://www.attrs.org/
 class Record(object):
+    # Consider using the `attrs` package (attrs.org) to reduce boilerplate.
 
-    value = attr.ib()
+    def __init__(self, value):
+        self.value = value
+
+    def __repr__(self):
+        return 'Record(value={!r})'.format(self.value)
+
+    def __eq__(self, other):
+        return type(self) == type(other) and self.value == other.value
 
     def to_json(self):
         return json.dumps(self.value)
@@ -102,4 +107,5 @@ def test_record_json_roundtrip(record):
     new = Record.from_json(string)
     #assert record == new
     # TODO: fix the first problem in the code being tested
-    # TODO: fix the second problem in two different places
+    # TODO: fix the second problem by using hypothesis.assume in the test,
+    #       or an argument to one of the strategies defining json
