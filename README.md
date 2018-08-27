@@ -50,6 +50,9 @@ Try to fix the `# TODO` comments in each section, and run the tests
 regularly to make sure it's working.  Once you're happy with both tests
 and features, you're done with this part of the workshop!
 
+If you're stuck, or just curious about how else you could've solved these
+problems, there is a [**spoilers branch**](../../tree/spoilers) containing solutions.
+
 You should now have a decent idea of how to use Hypothesis, and the benefits
 it can deliver for your code (and your tests).
 
