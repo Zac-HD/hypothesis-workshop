@@ -91,7 +91,7 @@ class Record(object):
         return cls(value)
 
 
-# Passinga zero-arg function to `deferred` lets us write recursive definitions!
+# Passing a zero-arg function to `deferred` lets us write recursive definitions!
 json_strat = st.deferred(lambda: st.one_of(
     # JSON values are defined as nil, false, true, number, string, ...
     st.none(), st.booleans(), st.floats(), st.text(),
